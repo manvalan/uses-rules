@@ -1,0 +1,232 @@
+# Software design principles.
+# Unlike the rules in rules/, these cannot be measured by the certifier.
+# Agents and reviewers apply them when writing or changing code, answer
+# the check question for the code they touched, and report every case
+# where a principle was not followed, with the reason.
+set: design
+title: Software design principles
+version: 1.0.0
+source: >
+  Mark Seemann, Code That Fits in Your Head (2021); Robert C. Martin,
+  Clean Code (2008) and Clean Architecture (2017); Alexis King, Parse,
+  don't validate (2019)
+principles:
+  - id: DP-001
+    name: command-query-separation
+    title: Command Query Separation
+    source: "Code That Fits in Your Head - API design; Bertrand Meyer"
+    summary: >
+      A method either changes state (command, returns nothing) or answers
+      a question (query, has no side effects). Never both.
+    apply:
+      - Queries return values and leave every object unchanged.
+      - Commands return nothing (void / None); report failure with
+        exceptions or result types, not with a returned flag.
+      - Split a method that does both into a command and a query.
+    check: Does any method I wrote both change state and return a value?
+    example:
+      avoid: "def pop_next(self): item = self.queue.pop(); return item"
+      prefer: "def next(self): return self.queue[0]  /  def drop_next(self): self.queue.pop(0)"
+
+  - id: DP-002
+    name: parse-dont-validate
+    title: Parse, don't validate
+    source: "Alexis King, Parse, don't validate; Code That Fits in Your Head - Encapsulation"
+    summary: >
+      Turn raw input (strings, dicts, JSON) into well-typed domain objects
+      at the boundary, once. Inside the system, work only with values that
+      are valid by construction.
+    apply:
+      - Convert input at the edge into types that cannot hold invalid data
+        (e.g. Email, Money, DateRange instead of str, float, two dates).
+      - The parser either returns a valid object or fails; it never
+        returns a half-valid object or a boolean.
+      - Do not re-check the same condition deeper in the code.
+    check: Does my core logic receive raw strings or dicts that it has to check again?
+    example:
+      avoid: "def book(date: str): if not is_valid_date(date): ..."
+      prefer: "def book(date: BookingDate): ...  # BookingDate.parse(raw) at the boundary"
+
+  - id: DP-003
+    name: protect-invariants
+    title: Objects protect their invariants
+    source: "Code That Fits in Your Head - Encapsulation; Clean Code - Objects and Data Structures"
+    summary: >
+      An object is always in a valid state. Its constructor and methods
+      enforce the rules that must always hold, so callers cannot break them.
+    apply:
+      - Validate in the constructor; refuse to build an invalid object.
+      - Prefer immutable value objects; return new objects instead of
+        exposing setters.
+      - Do not expose internal collections that callers could modify.
+    check: Can a caller put one of my objects into an invalid state?
+
+  - id: DP-004
+    name: functional-core-imperative-shell
+    title: Functional core, imperative shell
+    source: "Code That Fits in Your Head - Separation of concerns; Gary Bernhardt"
+    summary: >
+      Keep decisions in pure functions that take values and return values.
+      Push I/O (database, network, clock, files, randomness) to a thin
+      outer layer that gathers inputs, calls the core and applies results.
+    apply:
+      - Business rules do not read the clock, the database or the network;
+        they receive what they need as arguments.
+      - The shell is simple enough to need few or no branches.
+      - Test the core with plain unit tests and no mocks.
+    check: Does any business decision in my code also perform I/O?
+
+  - id: DP-005
+    name: fractal-architecture
+    title: Fractal architecture
+    source: "Code That Fits in Your Head - Fractal architecture"
+    summary: >
+      At every zoom level (system, module, class, method) the code shows
+      a few well-named parts, about seven at most, so each level fits in
+      the reader's head without opening the details.
+    apply:
+      - A method reads as a short sequence of calls with intention-revealing
+        names.
+      - A module exposes a small surface; details stay private.
+      - When a level grows beyond about seven parts, group them.
+    check: Can someone understand each level I touched without reading the level below?
+
+  - id: DP-006
+    name: intention-revealing-names
+    title: Names reveal intent
+    source: "Clean Code - Meaningful Names; Code That Fits in Your Head - Code that fits in your head"
+    summary: >
+      Names say what something is or does, in the language of the domain,
+      so the code reads correctly even without the bodies.
+    apply:
+      - Use domain words; avoid generic names (data, info, manager,
+        helper, util, process, handle).
+      - Function names are verbs for commands and nouns or questions for
+        queries (is_open, total).
+      - A name that needs a comment to be understood is a wrong name.
+    check: If I hide every method body, do the names alone explain what the code does?
+
+  - id: DP-007
+    name: single-responsibility
+    title: Single responsibility
+    source: "Clean Architecture - SRP; Clean Code - Classes"
+    summary: >
+      A module or class has one reason to change: it serves one actor or
+      one concern.
+    apply:
+      - Separate business rules, persistence, presentation and integration
+        code.
+      - If describing a class needs "and", consider splitting it.
+    check: Is there more than one reason for the classes I changed to change?
+
+  - id: DP-008
+    name: dependencies-point-inward
+    title: Dependencies point inward
+    source: "Clean Architecture - The Dependency Rule; Dependency Inversion Principle"
+    summary: >
+      Domain code does not depend on frameworks, databases or user
+      interfaces. Outer layers depend on inner ones through interfaces the
+      inner layers own.
+    apply:
+      - The domain defines interfaces (ports) for what it needs; adapters
+        in outer layers implement them.
+      - No framework, ORM or HTTP types inside domain objects.
+    check: Does any domain module I touched import infrastructure or framework code?
+
+  - id: DP-009
+    name: explicit-dependencies
+    title: Explicit dependencies
+    source: "Code That Fits in Your Head - Dependency injection; Clean Architecture"
+    summary: >
+      Everything a class needs is passed in (constructor injection), not
+      fetched from globals, singletons, service locators or environment
+      variables deep in the code.
+    apply:
+      - Read configuration and build the object graph in one place (the
+        composition root).
+      - No hidden calls to the clock or random generators in logic; inject
+        them.
+    check: Does my code reach for a global, a singleton or the environment instead of receiving it?
+
+  - id: DP-010
+    name: tell-dont-ask
+    title: Tell, don't ask (Law of Demeter)
+    source: "Clean Code - The Law of Demeter"
+    summary: >
+      Ask an object to do the work instead of pulling its data out and
+      deciding for it. Talk to direct collaborators, not to their parts.
+    apply:
+      - Avoid chains such as order.customer.address.city.
+      - Move behaviour next to the data it uses.
+    check: Did I write chains of getters or decide things using another object's internal data?
+
+  - id: DP-011
+    name: composition-over-inheritance
+    title: Composition over inheritance
+    source: "Design Patterns (Gamma et al.); Clean Architecture - OCP"
+    summary: >
+      Extend behaviour by combining small objects behind interfaces, not
+      by deep inheritance trees. Inheritance only for real "is-a" with a
+      shared invariant.
+    apply:
+      - Prefer injecting a strategy or decorator over subclassing.
+      - Keep inheritance at most one or two levels deep.
+    check: Did I add a subclass where passing a collaborator would do?
+
+  - id: DP-012
+    name: explicit-errors
+    title: Explicit error handling
+    source: "Clean Code - Error Handling"
+    summary: >
+      Failures are explicit: exceptions or result types with a clear
+      meaning. No error codes, no silent catches, no null returned to mean
+      "not found" or "failed".
+    apply:
+      - Catch only exceptions you can handle; let the rest propagate.
+      - Return an optional or result type, or raise, instead of None for
+        failure.
+      - Error messages say what happened and what to do.
+    check: Can any failure in my code be silently ignored or confused with a valid result?
+
+  - id: DP-013
+    name: rule-of-three
+    title: Remove duplication at the third occurrence
+    source: "Code That Fits in Your Head - Rule of three; Martin Fowler, Refactoring"
+    summary: >
+      Duplicate knowledge is a defect, but premature abstraction is worse.
+      Tolerate a second copy; extract the abstraction at the third, when
+      the shared concept is clear.
+    apply:
+      - Extract shared business rules as soon as they diverge in two places.
+      - Do not merge code that only looks alike but changes for different
+        reasons.
+    check: Did I copy a business rule a third time, or merge code that changes for different reasons?
+
+  - id: DP-014
+    name: tests-first-outside-in
+    title: Tests first, outside-in
+    source: "Code That Fits in Your Head - Outside-in TDD; Walking skeleton"
+    summary: >
+      Start from a test of the observable behaviour at the boundary, then
+      drive the inner design with smaller tests. Every behaviour change
+      comes with a test that failed before it.
+    apply:
+      - Write or update the test before the code; watch it fail.
+      - Test behaviour through public interfaces, not private details.
+      - Start a new feature with a thin end-to-end slice (walking skeleton).
+    check: Is every behaviour I added or changed covered by a test that failed without my change?
+
+  - id: DP-015
+    name: small-safe-steps
+    title: Small, safe steps
+    source: "Code That Fits in Your Head - Make it work, small commits; Kent Beck"
+    summary: >
+      Change code in small steps that keep the build green. Separate
+      refactoring from behaviour changes, and commit each step with a
+      message that says why.
+    apply:
+      - Refactor in one commit, change behaviour in another.
+      - Each commit builds, passes the tests and the certification check.
+      - Prefer feature flags or branching by abstraction over long-lived
+        branches.
+    check: Does each of my commits build and pass, and does it mix refactoring with behaviour changes?

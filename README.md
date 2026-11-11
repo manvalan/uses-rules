@@ -13,8 +13,9 @@ discussed in code review and versioned like code.
 |---|---|
 | `rules/ctfiyh.yaml` | Rules from *Code That Fits in Your Head* (Mark Seemann): rule of seven, 80/24 rule, activated objects, nesting |
 | `rules/clean-code.yaml` | Rules from *Clean Code* (Robert C. Martin), PEP 8 and PEP 257 |
+| `principles/design.yaml` | Design principles that cannot be measured (CQS, parse don't validate, functional core, dependency rule...) |
 | `certification.yaml` | Scoring and stamp levels (Gold, Silver, Bronze) |
-| `schema/ruleset.schema.json` | JSON schema for rulesets, also useful for editor completion |
+| `schema/*.schema.json` | JSON schemas for rulesets and principles, also useful for editor completion |
 | `scripts/validate.py` | Ruleset checker, run in CI on every push |
 
 ## Rule summary
@@ -40,6 +41,33 @@ discussed in code review and versioned like code.
 | CC-008 | class | fields ≤ 7 | warning |
 | CC-009 | file | length ≤ 500 lines | warning |
 | CC-010 | file | no TODO / FIXME / XXX | info |
+
+## Design principles
+
+The rules above are measured by the certifier. The principles in
+`principles/design.yaml` cannot be measured: agents and reviewers apply
+them when they write or change code, answer each check question for the
+code they touched, and report every case where a principle was not
+followed. `uses-certifier guide` prints them with summary, how to apply
+them and examples.
+
+| Id | Principle | Check question |
+|---|---|---|
+| DP-001 | Command Query Separation | Does any method I wrote both change state and return a value? |
+| DP-002 | Parse, don't validate | Does my core logic receive raw strings or dicts that it has to check again? |
+| DP-003 | Objects protect their invariants | Can a caller put one of my objects into an invalid state? |
+| DP-004 | Functional core, imperative shell | Does any business decision in my code also perform I/O? |
+| DP-005 | Fractal architecture | Can someone understand each level I touched without reading the level below? |
+| DP-006 | Names reveal intent | If I hide every method body, do the names alone explain what the code does? |
+| DP-007 | Single responsibility | Is there more than one reason for the classes I changed to change? |
+| DP-008 | Dependencies point inward | Does any domain module I touched import infrastructure or framework code? |
+| DP-009 | Explicit dependencies | Does my code reach for a global, a singleton or the environment instead of receiving it? |
+| DP-010 | Tell, don't ask (Law of Demeter) | Did I write chains of getters or decide things using another object's internal data? |
+| DP-011 | Composition over inheritance | Did I add a subclass where passing a collaborator would do? |
+| DP-012 | Explicit error handling | Can any failure in my code be silently ignored or confused with a valid result? |
+| DP-013 | Remove duplication at the third occurrence | Did I copy a business rule a third time, or merge code that changes for different reasons? |
+| DP-014 | Tests first, outside-in | Is every behaviour I added or changed covered by a test that failed without my change? |
+| DP-015 | Small, safe steps | Does each of my commits build and pass, and does it mix refactoring with behaviour changes? |
 
 ## Rule format
 
@@ -94,7 +122,8 @@ worst of itself and everything it contains.
 
 ## Adding or changing a rule
 
-1. Edit the right ruleset YAML file, or add a new one in `rules/`.
+1. Edit the right ruleset YAML file, or add a new one in `rules/`
+   (measurable rules) or `principles/` (design principles).
 2. Run `python scripts/validate.py`.
 3. Bump the ruleset `version` and open a pull request.
 
