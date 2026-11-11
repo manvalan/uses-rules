@@ -1,35 +1,35 @@
-# Regole di Clean Code (Robert C. Martin) e buone pratiche diffuse.
+# Rules from Clean Code (Robert C. Martin) and widespread good practice.
 ruleset: clean-code
-title: Clean Code e buone pratiche
-version: 1.0.0
+title: Clean Code and good practice
+version: 1.1.0
 source: "Robert C. Martin, Clean Code, Prentice Hall 2008; PEP 8; PEP 257"
 rules:
   - id: CC-001
     name: few-arguments
-    title: Preferibilmente al massimo 3 argomenti
+    title: Preferably at most 3 arguments
     scope: function
     metric: parameter_count
     operator: "<="
     threshold: 3
     severity: info
-    source: "Clean Code, cap. 3 - Function Arguments"
-    rationale: Il numero ideale di argomenti è zero, poi uno, poi due. Tre vanno evitati quando possibile.
+    source: "Clean Code, ch. 3 - Function Arguments"
+    rationale: The ideal number of arguments is zero, then one, then two. Three should be avoided where possible.
 
   - id: CC-002
     name: no-flag-arguments
-    title: Nessun argomento booleano (flag)
+    title: No boolean (flag) arguments
     scope: function
     metric: boolean_parameters
     operator: "=="
     threshold: 0
     severity: warning
     languages: [python]
-    source: "Clean Code, cap. 3 - Flag Arguments"
-    rationale: Un flag dichiara che la funzione fa due cose. Meglio due funzioni.
+    source: "Clean Code, ch. 3 - Flag Arguments"
+    rationale: A flag announces that the function does two things. Write two functions instead.
 
   - id: CC-003
     name: public-function-docstring
-    title: Le funzioni pubbliche hanno una docstring
+    title: Public functions have a docstring
     scope: function
     metric: has_docstring
     operator: "=="
@@ -38,11 +38,11 @@ rules:
     applies_to: public
     languages: [python]
     source: "PEP 257"
-    rationale: L'interfaccia pubblica deve dire cosa fa senza obbligare a leggere il corpo.
+    rationale: The public interface must say what it does without forcing the reader into the body.
 
   - id: CC-004
     name: public-class-docstring
-    title: Le classi pubbliche hanno una docstring
+    title: Public classes have a docstring
     scope: class
     metric: has_docstring
     operator: "=="
@@ -51,73 +51,73 @@ rules:
     applies_to: public
     languages: [python]
     source: "PEP 257"
-    rationale: Una classe deve dichiarare la propria responsabilità.
+    rationale: A class must state its responsibility.
 
   - id: CC-005
     name: no-bare-except
-    title: Nessun except generico
+    title: No bare except
     scope: function
     metric: bare_except_count
     operator: "=="
     threshold: 0
     severity: error
     languages: [python]
-    source: "Clean Code, cap. 7 - Error Handling; PEP 8"
-    rationale: Un except senza tipo nasconde errori imprevisti, compresi KeyboardInterrupt e SystemExit.
+    source: "Clean Code, ch. 7 - Error Handling; PEP 8"
+    rationale: An untyped except hides unexpected errors, including KeyboardInterrupt and SystemExit.
 
   - id: CC-006
     name: few-returns
-    title: Al massimo 4 return per funzione
+    title: At most 4 returns per function
     scope: function
     metric: return_count
     operator: "<="
     threshold: 4
     severity: info
     languages: [python]
-    source: "Buona pratica diffusa"
-    rationale: Molti punti di uscita rendono difficile seguire il flusso.
+    source: "Widespread good practice"
+    rationale: Many exit points make the flow hard to follow.
 
   - id: CC-007
     name: class-length
-    title: Classe lunga al massimo 300 righe
+    title: Class of at most 300 lines
     scope: class
     metric: length_lines
     operator: "<="
     threshold: 300
     severity: warning
-    source: "Clean Code, cap. 10 - Classes Should Be Small"
-    rationale: Una classe lunga ha quasi sempre più di una responsabilità.
+    source: "Clean Code, ch. 10 - Classes Should Be Small"
+    rationale: A long class almost always has more than one responsibility.
 
   - id: CC-008
     name: class-field-count
-    title: Classe con al massimo 7 campi
+    title: Class with at most 7 fields
     scope: class
     metric: field_count
     operator: "<="
     threshold: 7
     severity: warning
     languages: [python]
-    source: "Clean Code, cap. 10 - Cohesion"
-    rationale: Molti campi riducono la coesione e superano la memoria di lavoro.
+    source: "Clean Code, ch. 10 - Cohesion"
+    rationale: Many fields reduce cohesion and exceed working memory.
 
   - id: CC-009
     name: module-length
-    title: Sorgente lungo al massimo 500 righe
+    title: Source file of at most 500 lines
     scope: module
     metric: length_lines
     operator: "<="
     threshold: 500
     severity: warning
-    source: "Buona pratica diffusa"
-    rationale: File corti sono più facili da navigare e da rivedere.
+    source: "Widespread good practice"
+    rationale: Short files are easier to navigate and review.
 
   - id: CC-010
     name: no-todo
-    title: Nessun TODO, FIXME o XXX lasciato nel sorgente
+    title: No TODO, FIXME or XXX left in the source
     scope: module
     metric: todo_count
     operator: "=="
     threshold: 0
     severity: info
-    source: "Clean Code, cap. 4 - TODO Comments"
-    rationale: I promemoria nel codice vanno tracciati come attività, non dimenticati nel sorgente.
+    source: "Clean Code, ch. 4 - TODO Comments"
+    rationale: Reminders belong in the issue tracker, not forgotten in the source.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/manvalan/uses-rules/schema/ruleset.schema.json",
-  "title": "Ruleset del certificatore USES",
+  "title": "USES certifier ruleset",
   "type": "object",
   "required": ["ruleset", "version", "rules"],
   "additionalProperties": false,

@@ -1,4 +1,4 @@
-name: Valida regole
+name: Validate rules
 on: [push, pull_request]
 jobs:
   validate:

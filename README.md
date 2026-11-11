@@ -1,102 +1,102 @@
 # uses-rules
 
-Regole di qualità del codice usate da
-[uses-certifier](https://github.com/manvalan/uses-certifier) per bollinare
-ogni metodo, classe e sorgente che produciamo.
+Code quality rules used by
+[uses-certifier](https://github.com/manvalan/uses-certifier) to stamp every
+method, class and source file we produce.
 
-Le regole sono scritte in YAML, una per voce, così si leggono, si discutono
-in code review e si versionano come il codice.
+Rules are written in YAML, one entry per rule, so they can be read,
+discussed in code review and versioned like code.
 
-## Contenuto
+## Contents
 
-| File | Cosa contiene |
+| File | What it holds |
 |---|---|
-| `rules/ctfiyh.yaml` | Regole da *Code That Fits in Your Head* (Mark Seemann): regola del sette, regola 80/24, oggetti attivati, annidamento |
-| `rules/clean-code.yaml` | Regole da *Clean Code* (Robert C. Martin), PEP 8 e PEP 257 |
-| `certification.yaml` | Punteggio e livelli del bollino (Oro, Argento, Bronzo) |
-| `schema/ruleset.schema.json` | Schema JSON dei ruleset, utile anche per l'autocompletamento nell'editor |
-| `scripts/validate.py` | Controllo dei ruleset, eseguito in CI a ogni push |
+| `rules/ctfiyh.yaml` | Rules from *Code That Fits in Your Head* (Mark Seemann): rule of seven, 80/24 rule, activated objects, nesting |
+| `rules/clean-code.yaml` | Rules from *Clean Code* (Robert C. Martin), PEP 8 and PEP 257 |
+| `certification.yaml` | Scoring and stamp levels (Gold, Silver, Bronze) |
+| `schema/ruleset.schema.json` | JSON schema for rulesets, also useful for editor completion |
+| `scripts/validate.py` | Ruleset checker, run in CI on every push |
 
-## Riepilogo delle regole
+## Rule summary
 
-| Id | Ambito | Regola | Gravità |
+| Id | Scope | Rule | Severity |
 |---|---|---|---|
-| CTF-001 | metodo | complessità ciclomatica ≤ 7 | error |
-| CTF-002 | metodo | oggetti attivati ≤ 7 | warning |
-| CTF-003 | metodo | lunghezza ≤ 24 righe | error |
-| CTF-004 | metodo | righe ≤ 80 caratteri | warning |
-| CTF-005 | sorgente | righe ≤ 80 caratteri | warning |
-| CTF-006 | metodo | parametri ≤ 4 | warning |
-| CTF-007 | metodo | annidamento ≤ 3 | warning |
-| CTF-008 | classe | metodi ≤ 12 | warning |
-| CTF-009 | classe | complessità totale ≤ 49 | warning |
-| CC-001 | metodo | parametri ≤ 3 | info |
-| CC-002 | metodo | nessun parametro booleano | warning |
-| CC-003 | metodo | docstring sulle funzioni pubbliche | info |
-| CC-004 | classe | docstring sulle classi pubbliche | info |
-| CC-005 | metodo | nessun `except:` generico | error |
-| CC-006 | metodo | return ≤ 4 | info |
-| CC-007 | classe | lunghezza ≤ 300 righe | warning |
-| CC-008 | classe | campi ≤ 7 | warning |
-| CC-009 | sorgente | lunghezza ≤ 500 righe | warning |
-| CC-010 | sorgente | nessun TODO / FIXME / XXX | info |
+| CTF-001 | method | cyclomatic complexity ≤ 7 | error |
+| CTF-002 | method | activated objects ≤ 7 | warning |
+| CTF-003 | method | length ≤ 24 lines | error |
+| CTF-004 | method | lines ≤ 80 characters | warning |
+| CTF-005 | file | lines ≤ 80 characters | warning |
+| CTF-006 | method | parameters ≤ 4 | warning |
+| CTF-007 | method | nesting ≤ 3 | warning |
+| CTF-008 | class | methods ≤ 12 | warning |
+| CTF-009 | class | total complexity ≤ 49 | warning |
+| CC-001 | method | parameters ≤ 3 | info |
+| CC-002 | method | no boolean parameters | warning |
+| CC-003 | method | docstring on public functions | info |
+| CC-004 | class | docstring on public classes | info |
+| CC-005 | method | no bare `except:` | error |
+| CC-006 | method | returns ≤ 4 | info |
+| CC-007 | class | length ≤ 300 lines | warning |
+| CC-008 | class | fields ≤ 7 | warning |
+| CC-009 | file | length ≤ 500 lines | warning |
+| CC-010 | file | no TODO / FIXME / XXX | info |
 
-## Formato di una regola
+## Rule format
 
 ```yaml
-- id: CTF-001                     # univoco, PREFISSO-NNN
+- id: CTF-001                     # unique, PREFIX-NNN
   name: cyclomatic-complexity
-  title: Complessità ciclomatica al massimo 7
+  title: Cyclomatic complexity of at most 7
   scope: function                 # function | class | module
-  metric: cyclomatic_complexity   # metrica calcolata dal certificatore
+  metric: cyclomatic_complexity   # metric computed by the certifier
   operator: "<="                  # <= < >= > == !=
   threshold: 7
   severity: error                 # error | warning | info
-  applies_to: all                 # all (predefinito) | public
-  languages: [python]             # facoltativo: limita la regola ad alcuni linguaggi
-  enabled: true                   # facoltativo
-  source: "cap. 7.2 - La regola del sette"
-  rationale: Perché la regola esiste.
+  applies_to: all                 # all (default) | public
+  languages: [python]             # optional: restrict to some languages
+  enabled: true                   # optional
+  source: "ch. 7.2 - The rule of seven"
+  rationale: Why the rule exists.
 ```
 
-### Metriche disponibili
+### Available metrics
 
-| Metrica | Ambito | Linguaggi |
+| Metric | Scope | Languages |
 |---|---|---|
-| `cyclomatic_complexity` | function | tutti |
-| `length_lines` | function, class, module | tutti |
-| `max_line_width` | function, module | tutti |
-| `parameter_count` | function | tutti |
-| `method_count`, `weighted_complexity` | class | tutti |
-| `todo_count` | module | tutti |
+| `cyclomatic_complexity` | function | all |
+| `length_lines` | function, class, module | all |
+| `max_line_width` | function, module | all |
+| `parameter_count` | function | all |
+| `method_count`, `weighted_complexity` | class | all |
+| `todo_count` | module | all |
 | `activated_objects`, `max_nesting`, `return_count`, `boolean_parameters`, `bare_except_count`, `has_docstring` | function | Python |
 | `field_count`, `has_docstring` | class | Python |
 
-"Tutti" indica i linguaggi letti tramite [lizard](https://github.com/terryyin/lizard):
-C, C++, C#, Java, JavaScript, TypeScript, Go, Rust, Kotlin, Swift, PHP,
-Ruby, Scala, Lua e altri. Python viene analizzato con l'AST, che dà metriche
-più precise.
+"All" means the languages read through
+[lizard](https://github.com/terryyin/lizard): C, C++, C#, Java, JavaScript,
+TypeScript, Go, Rust, Kotlin, Swift, PHP, Ruby, Scala, Lua and more. Python
+is analysed through its AST, which gives more precise metrics.
 
-## Livelli del bollino
+## Stamp levels
 
-Ogni elemento parte da 100 punti e perde 20 punti per ogni error, 7 per ogni
-warning e 2 per ogni info. Poi riceve il primo livello che soddisfa:
+Every element starts at 100 points and loses 20 points per error, 7 per
+warning and 2 per info. It then receives the first level it satisfies:
 
-| Livello | Punteggio minimo | Error | Warning |
+| Level | Minimum score | Errors | Warnings |
 |---|---|---|---|
-| Oro | 95 | 0 | 0 |
-| Argento | 80 | 0 | qualsiasi |
-| Bronzo | 60 | 0 | qualsiasi |
-| Non certificato | | | |
+| Gold | 95 | 0 | 0 |
+| Silver | 80 | 0 | any |
+| Bronze | 60 | 0 | any |
+| Not certified | | | |
 
-Una classe vale quanto il peggiore tra lei e i suoi metodi, un sorgente quanto
-il peggiore tra lui e tutto ciò che contiene.
+A class is worth the worst of itself and its methods, a source file the
+worst of itself and everything it contains.
 
-## Aggiungere o cambiare una regola
+## Adding or changing a rule
 
-1. Modificare il file YAML del ruleset giusto, oppure aggiungerne uno nuovo in `rules/`.
-2. Eseguire `python scripts/validate.py`.
-3. Alzare `version` del ruleset e aprire una pull request.
+1. Edit the right ruleset YAML file, or add a new one in `rules/`.
+2. Run `python scripts/validate.py`.
+3. Bump the ruleset `version` and open a pull request.
 
-Un progetto può adattare le soglie senza toccare questo repository, con il
-file `.uses-certifier.yaml` descritto nel README del certificatore.
+A project can tune thresholds without touching this repository through the
+`.uses-certifier.yaml` file described in the certifier README.

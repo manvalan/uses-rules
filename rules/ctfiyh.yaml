@@ -1,123 +1,122 @@
-# Regole tratte da "Code That Fits in Your Head" (Mark Seemann, 2021).
-# Principio guida: il codice deve stare nella memoria di lavoro di chi legge,
-# che regge circa sette "pezzi" di informazione alla volta.
+# Rules from "Code That Fits in Your Head" (Mark Seemann, 2021).
+# Guiding principle: code must fit in the reader's working memory,
+# which holds about seven "chunks" of information at a time.
 ruleset: ctfiyh
 title: Code That Fits in Your Head
-version: 1.0.0
+version: 1.1.0
 source: "Mark Seemann, Code That Fits in Your Head, Addison-Wesley 2021"
 rules:
   - id: CTF-001
     name: cyclomatic-complexity
-    title: Complessità ciclomatica al massimo 7
+    title: Cyclomatic complexity of at most 7
     scope: function
     metric: cyclomatic_complexity
     operator: "<="
     threshold: 7
     severity: error
-    source: "cap. 7.2 - La regola del sette"
+    source: "ch. 7.2 - The rule of seven"
     rationale: >
-      Ogni ramo è un pezzo da tenere a mente. Oltre sette rami il metodo
-      non sta più nella memoria di lavoro e va scomposto.
+      Every branch is a chunk to keep in mind. Beyond seven branches the
+      method no longer fits in working memory and must be decomposed.
 
   - id: CTF-002
     name: activated-objects
-    title: Al massimo 7 oggetti attivati per metodo
+    title: At most 7 activated objects per method
     scope: function
     metric: activated_objects
     operator: "<="
     threshold: 7
     severity: warning
-    source: "cap. 7.2.7 - Oggetti attivati"
+    source: "ch. 7.2.7 - Activated objects"
     rationale: >
-      Parametri, variabili locali, campi e attributi usati da un metodo sono
-      tutti oggetti da ricordare. Più di sette superano la memoria di lavoro.
+      Parameters, local variables and fields used by a method are all
+      objects to remember. More than seven exceed working memory.
 
   - id: CTF-003
     name: method-length
-    title: Metodo lungo al massimo 24 righe (regola 80/24)
+    title: Method of at most 24 lines (80/24 rule)
     scope: function
     metric: length_lines
     operator: "<="
     threshold: 24
     severity: error
-    source: "cap. 7.1.2 - La regola 80/24"
+    source: "ch. 7.1.2 - The 80/24 rule"
     rationale: >
-      Un metodo deve stare in uno schermo da terminale classico (80x24),
-      così si legge tutto senza scorrere.
+      A method should fit on a classic 80x24 terminal screen so that it
+      can be read in full without scrolling.
 
   - id: CTF-004
     name: line-width-function
-    title: Righe del metodo larghe al massimo 80 caratteri (regola 80/24)
+    title: Method lines at most 80 characters wide (80/24 rule)
     scope: function
     metric: max_line_width
     operator: "<="
     threshold: 80
     severity: warning
-    source: "cap. 7.1.2 - La regola 80/24"
+    source: "ch. 7.1.2 - The 80/24 rule"
     rationale: >
-      Righe corte evitano lo scorrimento orizzontale e permettono di
-      affiancare due file sullo schermo.
+      Short lines avoid horizontal scrolling and allow two files to be
+      viewed side by side.
 
   - id: CTF-005
     name: line-width-module
-    title: Righe del sorgente larghe al massimo 80 caratteri (regola 80/24)
+    title: Source lines at most 80 characters wide (80/24 rule)
     scope: module
     metric: max_line_width
     operator: "<="
     threshold: 80
     severity: warning
-    source: "cap. 7.1.2 - La regola 80/24"
-    rationale: Vale anche per il codice fuori dai metodi (import, costanti, dichiarazioni).
+    source: "ch. 7.1.2 - The 80/24 rule"
+    rationale: Also applies to code outside methods (imports, constants, declarations).
 
   - id: CTF-006
     name: parameter-count
-    title: Al massimo 4 parametri
+    title: At most 4 parameters
     scope: function
     metric: parameter_count
     operator: "<="
     threshold: 4
     severity: warning
-    source: "cap. 7.2.7 - Oggetti attivati; cap. 8 - Introduce Parameter Object"
+    source: "ch. 7.2.7 - Activated objects; ch. 8 - Introduce Parameter Object"
     rationale: >
-      I parametri contano negli oggetti attivati. Molti parametri indicano
-      un concetto mancante da raccogliere in un oggetto.
+      Parameters count as activated objects. Many parameters point to a
+      missing concept that should be gathered into an object.
 
   - id: CTF-007
     name: nesting-depth
-    title: Annidamento al massimo 3 livelli
+    title: Nesting of at most 3 levels
     scope: function
     metric: max_nesting
     operator: "<="
     threshold: 3
     severity: warning
-    source: "cap. 7 - Codice a freccia e architettura frattale"
+    source: "ch. 7 - Arrow code and fractal architecture"
     rationale: >
-      Ogni livello di annidamento aggiunge contesto da ricordare.
-      Le guard clause e l'estrazione di metodi tengono il codice piatto.
+      Every nesting level adds context to remember. Guard clauses and
+      extracted methods keep code flat.
 
   - id: CTF-008
     name: class-method-count
-    title: Classe con al massimo 12 metodi
+    title: Class with at most 12 methods
     scope: class
     metric: method_count
     operator: "<="
     threshold: 12
     severity: warning
-    source: "cap. 7.2.6 - Architettura frattale (adattamento)"
+    source: "ch. 7.2.6 - Fractal architecture (adaptation)"
     rationale: >
-      Anche una classe deve poter essere compresa a colpo d'occhio:
-      a ogni livello di zoom pochi elementi.
+      A class must also be understandable at a glance: few elements at
+      every zoom level.
 
   - id: CTF-009
     name: class-weighted-complexity
-    title: Complessità totale della classe al massimo 49 (7x7)
+    title: Total class complexity of at most 49 (7x7)
     scope: class
     metric: weighted_complexity
     operator: "<="
     threshold: 49
     severity: warning
-    source: "cap. 7.2.6 - Architettura frattale (adattamento)"
+    source: "ch. 7.2.6 - Fractal architecture (adaptation)"
     rationale: >
-      Somma della complessità ciclomatica dei metodi. Sette metodi
-      di complessità sette sono il massimo che una classe dovrebbe
-      chiedere di tenere a mente.
+      Sum of the cyclomatic complexity of the methods. Seven methods of
+      complexity seven is the most a class should ask a reader to hold.
