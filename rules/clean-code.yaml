@@ -1,8 +1,8 @@
 # Rules from Clean Code (Robert C. Martin) and widespread good practice.
 ruleset: clean-code
 title: Clean Code and good practice
-version: 1.1.0
-source: "Robert C. Martin, Clean Code, Prentice Hall 2008; PEP 8; PEP 257"
+version: 1.2.0
+source: "Robert C. Martin, Clean Code, Prentice Hall 2008; Hunt and Thomas, The Pragmatic Programmer; PEP 8; PEP 257"
 rules:
   - id: CC-001
     name: few-arguments
@@ -121,3 +121,32 @@ rules:
     severity: info
     source: "Clean Code, ch. 4 - TODO Comments"
     rationale: Reminders belong in the issue tracker, not forgotten in the source.
+
+  - id: CC-011
+    name: no-duplicate-code
+    title: No duplicated function bodies (DRY)
+    scope: function
+    metric: duplicate_count
+    operator: "=="
+    threshold: 0
+    severity: warning
+    source: "The Pragmatic Programmer - The Evils of Duplication; Refactoring - Duplicated Code"
+    rationale: >
+      A function whose body (6 lines or more) is identical to another
+      function in the project duplicates knowledge: every fix must be
+      made twice. Extract the shared code. Python bodies are compared on
+      their syntax tree, so formatting and comments do not hide a copy.
+
+  - id: CC-012
+    name: no-commented-out-code
+    title: No commented-out code
+    scope: module
+    metric: commented_code_lines
+    operator: "=="
+    threshold: 0
+    severity: info
+    languages: [python]
+    source: "Clean Code - Commented-Out Code; The Pragmatic Programmer - Software Entropy"
+    rationale: >
+      Commented-out code is a broken window: nobody dares to delete it and
+      it rots. Version control remembers old code; delete it.

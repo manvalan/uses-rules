@@ -13,7 +13,7 @@ discussed in code review and versioned like code.
 |---|---|
 | `rules/ctfiyh.yaml` | Rules from *Code That Fits in Your Head* (Mark Seemann): rule of seven, 80/24 rule, activated objects, nesting |
 | `rules/clean-code.yaml` | Rules from *Clean Code* (Robert C. Martin), PEP 8 and PEP 257 |
-| `principles/design.yaml` | Design principles that cannot be measured (CQS, parse don't validate, functional core, dependency rule...) |
+| `principles/design.yaml` | 27 design principles from The Pragmatic Programmer, Clean Code, Clean Architecture, Refactoring, Working Effectively with Legacy Code and Code That Fits in Your Head |
 | `certification.yaml` | Scoring and stamp levels (Gold, Silver, Bronze) |
 | `schema/*.schema.json` | JSON schemas for rulesets and principles, also useful for editor completion |
 | `scripts/validate.py` | Ruleset checker, run in CI on every push |
@@ -41,6 +41,8 @@ discussed in code review and versioned like code.
 | CC-008 | class | fields ≤ 7 | warning |
 | CC-009 | file | length ≤ 500 lines | warning |
 | CC-010 | file | no TODO / FIXME / XXX | info |
+| CC-011 | method | no duplicated function bodies (DRY) | warning |
+| CC-012 | file | no commented-out code | info |
 
 ## Design principles
 
@@ -48,26 +50,61 @@ The rules above are measured by the certifier. The principles in
 `principles/design.yaml` cannot be measured: agents and reviewers apply
 them when they write or change code, answer each check question for the
 code they touched, and report every case where a principle was not
-followed. `uses-certifier guide` prints them with summary, how to apply
+followed. `measured_by` names the rules that measure part of a
+principle. `uses-certifier guide` prints them with summary, how to apply
 them and examples.
 
-| Id | Principle | Check question |
-|---|---|---|
-| DP-001 | Command Query Separation | Does any method I wrote both change state and return a value? |
-| DP-002 | Parse, don't validate | Does my core logic receive raw strings or dicts that it has to check again? |
-| DP-003 | Objects protect their invariants | Can a caller put one of my objects into an invalid state? |
-| DP-004 | Functional core, imperative shell | Does any business decision in my code also perform I/O? |
-| DP-005 | Fractal architecture | Can someone understand each level I touched without reading the level below? |
-| DP-006 | Names reveal intent | If I hide every method body, do the names alone explain what the code does? |
-| DP-007 | Single responsibility | Is there more than one reason for the classes I changed to change? |
-| DP-008 | Dependencies point inward | Does any domain module I touched import infrastructure or framework code? |
-| DP-009 | Explicit dependencies | Does my code reach for a global, a singleton or the environment instead of receiving it? |
-| DP-010 | Tell, don't ask (Law of Demeter) | Did I write chains of getters or decide things using another object's internal data? |
-| DP-011 | Composition over inheritance | Did I add a subclass where passing a collaborator would do? |
-| DP-012 | Explicit error handling | Can any failure in my code be silently ignored or confused with a valid result? |
-| DP-013 | Remove duplication at the third occurrence | Did I copy a business rule a third time, or merge code that changes for different reasons? |
-| DP-014 | Tests first, outside-in | Is every behaviour I added or changed covered by a test that failed without my change? |
-| DP-015 | Small, safe steps | Does each of my commits build and pass, and does it mix refactoring with behaviour changes? |
+**Design and structure**
+
+| Id | Principle | Measured by | Check question |
+|---|---|---|---|
+| DP-001 | DRY - Don't Repeat Yourself | CC-011 | Is any rule, formula or constant I touched written in more than one place? |
+| DP-002 | Orthogonality | - | Would replacing the database, the UI or an external service force changes in the code I touched? |
+| DP-003 | Don't live with broken windows | CC-010, CC-012 | Did I leave any hack, dead code, commented-out code or known problem behind? |
+| DP-004 | Tracer bullets and walking skeleton | - | Does the feature I am building already run end to end, even if it does very little? |
+| DP-005 | Fractal architecture | CTF-008, CTF-009 | Can someone understand each level I touched without reading the level below? |
+| DP-006 | Functional core, imperative shell | - | Does any business decision in my code also perform I/O? |
+| DP-007 | Command Query Separation | - | Does any method I wrote both change state and return a value? |
+| DP-008 | Parse, don't validate | - | Does my core logic receive raw strings or dicts that it has to check again? |
+| DP-009 | Objects protect their invariants | - | Can a caller put one of my objects into an invalid state? |
+
+**Writing and readability**
+
+| Id | Principle | Measured by | Check question |
+|---|---|---|---|
+| DP-010 | Intention-revealing names | - | If I hide every body, do the names alone explain what the code does? |
+| DP-011 | Small functions that do one thing, at one level of abstraction | CTF-001, CTF-003, CTF-006, CTF-007 | Does any function I wrote mix high-level steps with low-level details? |
+| DP-012 | Code as documentation | CC-012 | Does any comment I wrote repeat what the code already says? |
+| DP-013 | The Boy Scout rule | - | Is every file I touched at least as clean as before, ideally cleaner? |
+| DP-014 | Tell, don't ask (Law of Demeter) | - | Did I write chains of getters or decide things using another object's internal data? |
+| DP-015 | Explicit error handling | CC-005 | Can any failure in my code be silently ignored or confused with a valid result? |
+
+**Architecture and dependencies**
+
+| Id | Principle | Measured by | Check question |
+|---|---|---|---|
+| DP-016 | Single responsibility | CC-007, CC-008 | Is there more than one reason for the classes I changed to change? |
+| DP-017 | Dependencies point inward | - | Does any domain module I touched import infrastructure or framework code? |
+| DP-018 | Explicit dependencies | - | Does my code reach for a global, a singleton or the environment instead of receiving it? |
+| DP-019 | Composition over inheritance | - | Did I add a subclass where passing a collaborator would do? |
+
+**Continuous improvement**
+
+| Id | Principle | Measured by | Check question |
+|---|---|---|---|
+| DP-020 | The two hats | - | Does any of my commits both restructure code and change its behaviour? |
+| DP-021 | Small, verifiable steps | - | Could each of my steps be reverted on its own with the build still green? |
+| DP-022 | Recognise code smells | CTF-003, CTF-006, CTF-008, CC-007, CC-011 | Which smells remain in the code I touched, and why did I leave them? |
+| DP-023 | Rule of three | - | Did I copy something a third time, or merge code that changes for different reasons? |
+
+**Safety and maintenance**
+
+| Id | Principle | Measured by | Check question |
+|---|---|---|---|
+| DP-024 | Tests before changes | - | Was the code I changed covered by tests before I changed it? |
+| DP-025 | Find and use seams | - | Could I test the code I touched without its real external dependencies? |
+| DP-026 | Characterization tests | - | Before changing legacy code, did I pin its current behaviour with tests? |
+| DP-027 | Tests first, outside-in | - | Is every behaviour I added or changed covered by a test that failed without my change? |
 
 ## Rule format
 
@@ -97,6 +134,8 @@ them and examples.
 | `parameter_count` | function | all |
 | `method_count`, `weighted_complexity` | class | all |
 | `todo_count` | module | all |
+| `duplicate_count` | function | all (functions of 6+ lines; Python compared on the syntax tree) |
+| `commented_code_lines` | module | Python |
 | `activated_objects`, `max_nesting`, `return_count`, `boolean_parameters`, `bare_except_count`, `has_docstring` | function | Python |
 | `field_count`, `has_docstring` | class | Python |
 

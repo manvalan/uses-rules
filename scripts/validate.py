@@ -53,6 +53,8 @@ def principle_errors(path, seen):
         if pid in seen:
             errors.append(f"{pid}: duplicate id (also in {seen[pid]})")
         seen[pid] = path.name
+        errors += [f"{pid}: measured_by names unknown rule {rid}"
+                   for rid in item.get("measured_by", []) if rid not in seen]
     return errors
 
 

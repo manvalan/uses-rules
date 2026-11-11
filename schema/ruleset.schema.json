@@ -3,40 +3,132 @@
   "$id": "https://github.com/manvalan/uses-rules/schema/ruleset.schema.json",
   "title": "USES certifier ruleset",
   "type": "object",
-  "required": ["ruleset", "version", "rules"],
+  "required": [
+    "ruleset",
+    "version",
+    "rules"
+  ],
   "additionalProperties": false,
   "properties": {
-    "ruleset": {"type": "string", "pattern": "^[a-z0-9-]+$"},
-    "title": {"type": "string"},
-    "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
-    "source": {"type": "string"},
-    "rules": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rule"}}
+    "ruleset": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "source": {
+      "type": "string"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    }
   },
   "$defs": {
     "rule": {
       "type": "object",
-      "required": ["id", "name", "title", "scope", "metric", "operator", "threshold", "severity"],
+      "required": [
+        "id",
+        "name",
+        "title",
+        "scope",
+        "metric",
+        "operator",
+        "threshold",
+        "severity"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": {"type": "string", "pattern": "^[A-Z]+-\\d{3}$"},
-        "name": {"type": "string", "pattern": "^[a-z0-9-]+$"},
-        "title": {"type": "string"},
-        "scope": {"enum": ["function", "class", "module"]},
-        "metric": {"enum": [
-          "cyclomatic_complexity", "activated_objects", "length_lines",
-          "max_line_width", "parameter_count", "max_nesting",
-          "boolean_parameters", "has_docstring", "bare_except_count",
-          "return_count", "method_count", "weighted_complexity",
-          "field_count", "todo_count"
-        ]},
-        "operator": {"enum": ["<=", "<", ">=", ">", "==", "!="]},
-        "threshold": {"type": ["number", "boolean"]},
-        "severity": {"enum": ["error", "warning", "info"]},
-        "applies_to": {"enum": ["all", "public"]},
-        "languages": {"type": "array", "items": {"type": "string"}},
-        "enabled": {"type": "boolean"},
-        "source": {"type": "string"},
-        "rationale": {"type": "string"}
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]+-\\d{3}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "scope": {
+          "enum": [
+            "function",
+            "class",
+            "module"
+          ]
+        },
+        "metric": {
+          "enum": [
+            "cyclomatic_complexity",
+            "activated_objects",
+            "length_lines",
+            "max_line_width",
+            "parameter_count",
+            "max_nesting",
+            "boolean_parameters",
+            "has_docstring",
+            "bare_except_count",
+            "return_count",
+            "method_count",
+            "weighted_complexity",
+            "field_count",
+            "todo_count",
+            "duplicate_count",
+            "commented_code_lines"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            "<",
+            ">=",
+            ">",
+            "==",
+            "!="
+          ]
+        },
+        "threshold": {
+          "type": [
+            "number",
+            "boolean"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "applies_to": {
+          "enum": [
+            "all",
+            "public"
+          ]
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        }
       }
     }
   }
