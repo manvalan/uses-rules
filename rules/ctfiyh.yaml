@@ -1,0 +1,123 @@
+# Regole tratte da "Code That Fits in Your Head" (Mark Seemann, 2021).
+# Principio guida: il codice deve stare nella memoria di lavoro di chi legge,
+# che regge circa sette "pezzi" di informazione alla volta.
+ruleset: ctfiyh
+title: Code That Fits in Your Head
+version: 1.0.0
+source: "Mark Seemann, Code That Fits in Your Head, Addison-Wesley 2021"
+rules:
+  - id: CTF-001
+    name: cyclomatic-complexity
+    title: Complessità ciclomatica al massimo 7
+    scope: function
+    metric: cyclomatic_complexity
+    operator: "<="
+    threshold: 7
+    severity: error
+    source: "cap. 7.2 - La regola del sette"
+    rationale: >
+      Ogni ramo è un pezzo da tenere a mente. Oltre sette rami il metodo
+      non sta più nella memoria di lavoro e va scomposto.
+
+  - id: CTF-002
+    name: activated-objects
+    title: Al massimo 7 oggetti attivati per metodo
+    scope: function
+    metric: activated_objects
+    operator: "<="
+    threshold: 7
+    severity: warning
+    source: "cap. 7.2.7 - Oggetti attivati"
+    rationale: >
+      Parametri, variabili locali, campi e attributi usati da un metodo sono
+      tutti oggetti da ricordare. Più di sette superano la memoria di lavoro.
+
+  - id: CTF-003
+    name: method-length
+    title: Metodo lungo al massimo 24 righe (regola 80/24)
+    scope: function
+    metric: length_lines
+    operator: "<="
+    threshold: 24
+    severity: error
+    source: "cap. 7.1.2 - La regola 80/24"
+    rationale: >
+      Un metodo deve stare in uno schermo da terminale classico (80x24),
+      così si legge tutto senza scorrere.
+
+  - id: CTF-004
+    name: line-width-function
+    title: Righe del metodo larghe al massimo 80 caratteri (regola 80/24)
+    scope: function
+    metric: max_line_width
+    operator: "<="
+    threshold: 80
+    severity: warning
+    source: "cap. 7.1.2 - La regola 80/24"
+    rationale: >
+      Righe corte evitano lo scorrimento orizzontale e permettono di
+      affiancare due file sullo schermo.
+
+  - id: CTF-005
+    name: line-width-module
+    title: Righe del sorgente larghe al massimo 80 caratteri (regola 80/24)
+    scope: module
+    metric: max_line_width
+    operator: "<="
+    threshold: 80
+    severity: warning
+    source: "cap. 7.1.2 - La regola 80/24"
+    rationale: Vale anche per il codice fuori dai metodi (import, costanti, dichiarazioni).
+
+  - id: CTF-006
+    name: parameter-count
+    title: Al massimo 4 parametri
+    scope: function
+    metric: parameter_count
+    operator: "<="
+    threshold: 4
+    severity: warning
+    source: "cap. 7.2.7 - Oggetti attivati; cap. 8 - Introduce Parameter Object"
+    rationale: >
+      I parametri contano negli oggetti attivati. Molti parametri indicano
+      un concetto mancante da raccogliere in un oggetto.
+
+  - id: CTF-007
+    name: nesting-depth
+    title: Annidamento al massimo 3 livelli
+    scope: function
+    metric: max_nesting
+    operator: "<="
+    threshold: 3
+    severity: warning
+    source: "cap. 7 - Codice a freccia e architettura frattale"
+    rationale: >
+      Ogni livello di annidamento aggiunge contesto da ricordare.
+      Le guard clause e l'estrazione di metodi tengono il codice piatto.
+
+  - id: CTF-008
+    name: class-method-count
+    title: Classe con al massimo 12 metodi
+    scope: class
+    metric: method_count
+    operator: "<="
+    threshold: 12
+    severity: warning
+    source: "cap. 7.2.6 - Architettura frattale (adattamento)"
+    rationale: >
+      Anche una classe deve poter essere compresa a colpo d'occhio:
+      a ogni livello di zoom pochi elementi.
+
+  - id: CTF-009
+    name: class-weighted-complexity
+    title: Complessità totale della classe al massimo 49 (7x7)
+    scope: class
+    metric: weighted_complexity
+    operator: "<="
+    threshold: 49
+    severity: warning
+    source: "cap. 7.2.6 - Architettura frattale (adattamento)"
+    rationale: >
+      Somma della complessità ciclomatica dei metodi. Sette metodi
+      di complessità sette sono il massimo che una classe dovrebbe
+      chiedere di tenere a mente.

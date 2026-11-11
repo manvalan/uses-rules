@@ -1,0 +1,31 @@
+# Come si calcola il punteggio e quale bollino riceve ogni elemento
+# (metodo, classe, sorgente).
+version: 1.0.0
+
+scoring:
+  start: 100
+  penalties:        # punti tolti per ogni violazione
+    error: 20
+    warning: 7
+    info: 2
+
+# I livelli sono valutati in ordine: vince il primo soddisfatto.
+# Un elemento che non soddisfa nessun livello è "non certificato".
+levels:
+  - id: gold
+    label: Oro
+    min_score: 95
+    max_errors: 0
+    max_warnings: 0
+  - id: silver
+    label: Argento
+    min_score: 80
+    max_errors: 0
+  - id: bronze
+    label: Bronzo
+    min_score: 60
+    max_errors: 0
+
+# Il bollino di una classe tiene conto dei suoi metodi e quello di un
+# sorgente di tutto ciò che contiene: vale il livello peggiore.
+aggregation: worst
