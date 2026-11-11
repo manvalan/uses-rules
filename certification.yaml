@@ -1,0 +1,31 @@
+# How the score is computed and which stamp each element receives
+# (method, class, source file).
+version: 1.1.0
+
+scoring:
+  start: 100
+  penalties:        # points lost for each violation
+    error: 20
+    warning: 7
+    info: 2
+
+# Levels are evaluated in order: the first one satisfied wins.
+# An element that satisfies none is "not certified".
+levels:
+  - id: gold
+    label: Gold
+    min_score: 95
+    max_errors: 0
+    max_warnings: 0
+  - id: silver
+    label: Silver
+    min_score: 80
+    max_errors: 0
+  - id: bronze
+    label: Bronze
+    min_score: 60
+    max_errors: 0
+
+# A class's stamp takes its methods into account and a source file's
+# stamp takes everything it contains into account: the worst level wins.
+aggregation: worst

@@ -1,0 +1,122 @@
+# Rules from "Code That Fits in Your Head" (Mark Seemann, 2021).
+# Guiding principle: code must fit in the reader's working memory,
+# which holds about seven "chunks" of information at a time.
+ruleset: ctfiyh
+title: Code That Fits in Your Head
+version: 1.1.0
+source: "Mark Seemann, Code That Fits in Your Head, Addison-Wesley 2021"
+rules:
+  - id: CTF-001
+    name: cyclomatic-complexity
+    title: Cyclomatic complexity of at most 7
+    scope: function
+    metric: cyclomatic_complexity
+    operator: "<="
+    threshold: 7
+    severity: error
+    source: "ch. 7.2 - The rule of seven"
+    rationale: >
+      Every branch is a chunk to keep in mind. Beyond seven branches the
+      method no longer fits in working memory and must be decomposed.
+
+  - id: CTF-002
+    name: activated-objects
+    title: At most 7 activated objects per method
+    scope: function
+    metric: activated_objects
+    operator: "<="
+    threshold: 7
+    severity: warning
+    source: "ch. 7.2.7 - Activated objects"
+    rationale: >
+      Parameters, local variables and fields used by a method are all
+      objects to remember. More than seven exceed working memory.
+
+  - id: CTF-003
+    name: method-length
+    title: Method of at most 24 lines (80/24 rule)
+    scope: function
+    metric: length_lines
+    operator: "<="
+    threshold: 24
+    severity: error
+    source: "ch. 7.1.2 - The 80/24 rule"
+    rationale: >
+      A method should fit on a classic 80x24 terminal screen so that it
+      can be read in full without scrolling.
+
+  - id: CTF-004
+    name: line-width-function
+    title: Method lines at most 80 characters wide (80/24 rule)
+    scope: function
+    metric: max_line_width
+    operator: "<="
+    threshold: 80
+    severity: warning
+    source: "ch. 7.1.2 - The 80/24 rule"
+    rationale: >
+      Short lines avoid horizontal scrolling and allow two files to be
+      viewed side by side.
+
+  - id: CTF-005
+    name: line-width-module
+    title: Source lines at most 80 characters wide (80/24 rule)
+    scope: module
+    metric: max_line_width
+    operator: "<="
+    threshold: 80
+    severity: warning
+    source: "ch. 7.1.2 - The 80/24 rule"
+    rationale: Also applies to code outside methods (imports, constants, declarations).
+
+  - id: CTF-006
+    name: parameter-count
+    title: At most 4 parameters
+    scope: function
+    metric: parameter_count
+    operator: "<="
+    threshold: 4
+    severity: warning
+    source: "ch. 7.2.7 - Activated objects; ch. 8 - Introduce Parameter Object"
+    rationale: >
+      Parameters count as activated objects. Many parameters point to a
+      missing concept that should be gathered into an object.
+
+  - id: CTF-007
+    name: nesting-depth
+    title: Nesting of at most 3 levels
+    scope: function
+    metric: max_nesting
+    operator: "<="
+    threshold: 3
+    severity: warning
+    source: "ch. 7 - Arrow code and fractal architecture"
+    rationale: >
+      Every nesting level adds context to remember. Guard clauses and
+      extracted methods keep code flat.
+
+  - id: CTF-008
+    name: class-method-count
+    title: Class with at most 12 methods
+    scope: class
+    metric: method_count
+    operator: "<="
+    threshold: 12
+    severity: warning
+    source: "ch. 7.2.6 - Fractal architecture (adaptation)"
+    rationale: >
+      A class must also be understandable at a glance: few elements at
+      every zoom level.
+
+  - id: CTF-009
+    name: class-weighted-complexity
+    title: Total class complexity of at most 49 (7x7)
+    scope: class
+    metric: weighted_complexity
+    operator: "<="
+    threshold: 49
+    severity: warning
+    source: "ch. 7.2.6 - Fractal architecture (adaptation)"
+    rationale: >
+      Sum of the cyclomatic complexity of the methods. Seven methods of
+      complexity seven is the most a class should ask a reader to hold.

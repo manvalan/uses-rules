@@ -1,0 +1,152 @@
+# Rules from Clean Code (Robert C. Martin) and widespread good practice.
+ruleset: clean-code
+title: Clean Code and good practice
+version: 1.2.0
+source: "Robert C. Martin, Clean Code, Prentice Hall 2008; Hunt and Thomas, The Pragmatic Programmer; PEP 8; PEP 257"
+rules:
+  - id: CC-001
+    name: few-arguments
+    title: Preferably at most 3 arguments
+    scope: function
+    metric: parameter_count
+    operator: "<="
+    threshold: 3
+    severity: info
+    source: "Clean Code, ch. 3 - Function Arguments"
+    rationale: The ideal number of arguments is zero, then one, then two. Three should be avoided where possible.
+
+  - id: CC-002
+    name: no-flag-arguments
+    title: No boolean (flag) arguments
+    scope: function
+    metric: boolean_parameters
+    operator: "=="
+    threshold: 0
+    severity: warning
+    languages: [python]
+    source: "Clean Code, ch. 3 - Flag Arguments"
+    rationale: A flag announces that the function does two things. Write two functions instead.
+
+  - id: CC-003
+    name: public-function-docstring
+    title: Public functions have a docstring
+    scope: function
+    metric: has_docstring
+    operator: "=="
+    threshold: true
+    severity: info
+    applies_to: public
+    languages: [python]
+    source: "PEP 257"
+    rationale: The public interface must say what it does without forcing the reader into the body.
+
+  - id: CC-004
+    name: public-class-docstring
+    title: Public classes have a docstring
+    scope: class
+    metric: has_docstring
+    operator: "=="
+    threshold: true
+    severity: info
+    applies_to: public
+    languages: [python]
+    source: "PEP 257"
+    rationale: A class must state its responsibility.
+
+  - id: CC-005
+    name: no-bare-except
+    title: No bare except
+    scope: function
+    metric: bare_except_count
+    operator: "=="
+    threshold: 0
+    severity: error
+    languages: [python]
+    source: "Clean Code, ch. 7 - Error Handling; PEP 8"
+    rationale: An untyped except hides unexpected errors, including KeyboardInterrupt and SystemExit.
+
+  - id: CC-006
+    name: few-returns
+    title: At most 4 returns per function
+    scope: function
+    metric: return_count
+    operator: "<="
+    threshold: 4
+    severity: info
+    languages: [python]
+    source: "Widespread good practice"
+    rationale: Many exit points make the flow hard to follow.
+
+  - id: CC-007
+    name: class-length
+    title: Class of at most 300 lines
+    scope: class
+    metric: length_lines
+    operator: "<="
+    threshold: 300
+    severity: warning
+    source: "Clean Code, ch. 10 - Classes Should Be Small"
+    rationale: A long class almost always has more than one responsibility.
+
+  - id: CC-008
+    name: class-field-count
+    title: Class with at most 7 fields
+    scope: class
+    metric: field_count
+    operator: "<="
+    threshold: 7
+    severity: warning
+    languages: [python]
+    source: "Clean Code, ch. 10 - Cohesion"
+    rationale: Many fields reduce cohesion and exceed working memory.
+
+  - id: CC-009
+    name: module-length
+    title: Source file of at most 500 lines
+    scope: module
+    metric: length_lines
+    operator: "<="
+    threshold: 500
+    severity: warning
+    source: "Widespread good practice"
+    rationale: Short files are easier to navigate and review.
+
+  - id: CC-010
+    name: no-todo
+    title: No TODO, FIXME or XXX left in the source
+    scope: module
+    metric: todo_count
+    operator: "=="
+    threshold: 0
+    severity: info
+    source: "Clean Code, ch. 4 - TODO Comments"
+    rationale: Reminders belong in the issue tracker, not forgotten in the source.
+
+  - id: CC-011
+    name: no-duplicate-code
+    title: No duplicated function bodies (DRY)
+    scope: function
+    metric: duplicate_count
+    operator: "=="
+    threshold: 0
+    severity: warning
+    source: "The Pragmatic Programmer - The Evils of Duplication; Refactoring - Duplicated Code"
+    rationale: >
+      A function whose body (6 lines or more) is identical to another
+      function in the project duplicates knowledge: every fix must be
+      made twice. Extract the shared code. Python bodies are compared on
+      their syntax tree, so formatting and comments do not hide a copy.
+
+  - id: CC-012
+    name: no-commented-out-code
+    title: No commented-out code
+    scope: module
+    metric: commented_code_lines
+    operator: "=="
+    threshold: 0
+    severity: info
+    languages: [python]
+    source: "Clean Code - Commented-Out Code; The Pragmatic Programmer - Software Entropy"
+    rationale: >
+      Commented-out code is a broken window: nobody dares to delete it and
+      it rots. Version control remembers old code; delete it.

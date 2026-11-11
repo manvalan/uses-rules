@@ -1,0 +1,473 @@
+# Software design principles.
+# Most of them cannot be measured by the certifier: agents and reviewers
+# apply them when writing or changing code, answer the check question for
+# the code they touched, and report every case where a principle was not
+# followed, with the reason. `measured_by` lists the rules in rules/ that
+# measure part of a principle.
+set: design
+title: Software design principles
+version: 2.0.0
+source: >
+  Andrew Hunt and David Thomas, The Pragmatic Programmer (1999, 2019);
+  Robert C. Martin, Clean Code (2008) and Clean Architecture (2017);
+  Martin Fowler, Refactoring (1999, 2018); Michael Feathers, Working
+  Effectively with Legacy Code (2004); Mark Seemann, Code That Fits in
+  Your Head (2021); Alexis King, Parse, don't validate (2019)
+categories:
+  design: Design and structure
+  readability: Writing and readability
+  architecture: Architecture and dependencies
+  improvement: Continuous improvement
+  safety: Safety and maintenance
+principles:
+  # ---------------------------------------------------------------- design
+  - id: DP-001
+    name: dry
+    category: design
+    title: DRY - Don't Repeat Yourself
+    source: "The Pragmatic Programmer - The Evils of Duplication"
+    measured_by: [CC-011]
+    summary: >
+      Every piece of knowledge has a single, unambiguous, authoritative
+      representation in the system. Duplicated logic must be updated in
+      several places, and sooner or later one of them is forgotten.
+    apply:
+      - Business rules, formulas, validations and constants live in one
+        place and are reused from there.
+      - Generate repeated artefacts (schemas, clients, docs) from one
+        source instead of keeping copies in sync by hand.
+      - DRY is about knowledge, not text; see DP-023 before merging code
+        that only looks alike.
+    check: Is any rule, formula or constant I touched written in more than one place?
+
+  - id: DP-002
+    name: orthogonality
+    category: design
+    title: Orthogonality
+    source: "The Pragmatic Programmer - Orthogonality"
+    summary: >
+      Components are independent: changing one (database, user interface,
+      an external service) has no unexpected effects on the others.
+    apply:
+      - Each module has one purpose and a small, explicit interface.
+      - Do not share mutable global state between modules.
+      - A change of technology in one layer must not ripple through the
+        others.
+    check: Would replacing the database, the UI or an external service force changes in the code I touched?
+
+  - id: DP-003
+    name: broken-windows
+    category: design
+    title: Don't live with broken windows
+    source: "The Pragmatic Programmer - Software Entropy"
+    measured_by: [CC-010, CC-012]
+    summary: >
+      Never leave poor code, temporary hacks or known problems unresolved.
+      Decay spreads quickly once a team sees that quality is not cared for.
+    apply:
+      - Fix a bad design, a wrong name or a failing test as soon as you see
+        it, or record it in the issue tracker and board it up (isolate it,
+        mark it clearly) until it is fixed.
+      - No commented-out code, dead code or forgotten TODOs.
+      - Do not merge with warnings, failing checks or skipped tests.
+    check: Did I leave any hack, dead code, commented-out code or known problem behind?
+
+  - id: DP-004
+    name: tracer-bullets
+    category: design
+    title: Tracer bullets and walking skeleton
+    source: "The Pragmatic Programmer - Tracer Bullets; Code That Fits in Your Head - Walking skeleton"
+    summary: >
+      Build early a minimal but complete end-to-end version of the system
+      (or of a feature): from input to storage to output, with build,
+      tests and deployment. It validates the architecture and gives real
+      feedback before every feature is built.
+    apply:
+      - Start a new system or feature with the thinnest slice that goes
+        through every layer and runs in the pipeline.
+      - Keep the skeleton working and grow it; do not build layers in
+        isolation and integrate at the end.
+    check: Does the feature I am building already run end to end, even if it does very little?
+
+  - id: DP-005
+    name: fractal-architecture
+    category: design
+    title: Fractal architecture
+    source: "Code That Fits in Your Head - Fractal architecture"
+    measured_by: [CTF-008, CTF-009]
+    summary: >
+      At every zoom level (system, module, class, method) the code shows a
+      few well-named parts, about seven at most, so each level fits in the
+      reader's head without opening the details.
+    apply:
+      - A method reads as a short sequence of calls with intention-revealing
+        names.
+      - A module exposes a small surface; details stay private.
+      - When a level grows beyond about seven parts, group them.
+    check: Can someone understand each level I touched without reading the level below?
+
+  - id: DP-006
+    name: functional-core-imperative-shell
+    category: design
+    title: Functional core, imperative shell
+    source: "Code That Fits in Your Head; Gary Bernhardt, Boundaries"
+    summary: >
+      Keep decisions in pure functions that take values and return values.
+      Push I/O (database, network, clock, files, randomness) to a thin
+      outer layer that gathers inputs, calls the core and applies results.
+    apply:
+      - Business rules do not read the clock, the database or the network;
+        they receive what they need as arguments.
+      - The shell is simple enough to need few or no branches.
+      - Test the core with plain unit tests and no mocks.
+    check: Does any business decision in my code also perform I/O?
+
+  - id: DP-007
+    name: command-query-separation
+    category: design
+    title: Command Query Separation
+    source: "Code That Fits in Your Head - API design; Bertrand Meyer"
+    summary: >
+      A method either changes state (command, returns nothing) or answers
+      a question (query, has no side effects). Never both.
+    apply:
+      - Queries return values and leave every object unchanged.
+      - Commands return nothing; report failure with exceptions or result
+        types, not with a returned flag.
+      - Split a method that does both into a command and a query.
+    check: Does any method I wrote both change state and return a value?
+    example:
+      avoid: "def pop_next(self): return self.queue.pop(0)"
+      prefer: "def peek(self): return self.queue[0]  +  def drop_first(self): del self.queue[0]"
+
+  - id: DP-008
+    name: parse-dont-validate
+    category: design
+    title: Parse, don't validate
+    source: "Alexis King, Parse, don't validate; Code That Fits in Your Head - Encapsulation"
+    summary: >
+      Turn raw input (strings, dicts, JSON) into well-typed domain objects
+      at the boundary, once. Inside the system, work only with values that
+      are valid by construction.
+    apply:
+      - Convert input at the edge into types that cannot hold invalid data
+        (e.g. Email, Money, DateRange instead of str, float, two dates).
+      - The parser either returns a valid object or fails; it never returns
+        a half-valid object or a boolean.
+      - Do not re-check the same condition deeper in the code.
+    check: Does my core logic receive raw strings or dicts that it has to check again?
+    example:
+      avoid: "def book(date: str): if not is_valid_date(date): ..."
+      prefer: "def book(date: BookingDate): ...  # BookingDate.parse(raw) at the boundary"
+
+  - id: DP-009
+    name: protect-invariants
+    category: design
+    title: Objects protect their invariants
+    source: "Code That Fits in Your Head - Encapsulation; Clean Code - Objects and Data Structures"
+    summary: >
+      An object is always in a valid state. Its constructor and methods
+      enforce the rules that must always hold, so callers cannot break them.
+    apply:
+      - Validate in the constructor; refuse to build an invalid object.
+      - Prefer immutable value objects; return new objects instead of
+        exposing setters.
+      - Do not expose internal collections that callers could modify.
+    check: Can a caller put one of my objects into an invalid state?
+
+  # ----------------------------------------------------------- readability
+  - id: DP-010
+    name: intention-revealing-names
+    category: readability
+    title: Intention-revealing names
+    source: "Clean Code - Meaningful Names"
+    summary: >
+      Names of variables, functions and classes tell why they exist, what
+      they do and how they are used. If a name needs a comment to be
+      understood, change the name.
+    apply:
+      - Use domain words; avoid generic names (data, info, manager,
+        helper, util, process, handle, tmp).
+      - Commands are verbs; queries are nouns or questions (total, is_open).
+      - Names are pronounceable and searchable; no cryptic abbreviations.
+    check: If I hide every body, do the names alone explain what the code does?
+
+  - id: DP-011
+    name: small-functions
+    category: readability
+    title: Small functions that do one thing, at one level of abstraction
+    source: "Clean Code - Functions"
+    measured_by: [CTF-001, CTF-003, CTF-006, CTF-007]
+    summary: >
+      Functions are short, do one thing and do it well. All statements in
+      a function are at the same level of abstraction: a function either
+      orchestrates other functions or deals with details, not both.
+    apply:
+      - If you can extract a meaningful function from a function, it does
+        more than one thing.
+      - Do not mix high-level steps (place the order) with low-level
+        details (string formatting, index arithmetic) in the same body.
+      - Read the code top-down; each function is followed by those at the
+        next level of abstraction.
+    check: Does any function I wrote mix high-level steps with low-level details?
+
+  - id: DP-012
+    name: code-as-documentation
+    category: readability
+    title: Code as documentation
+    source: "Clean Code - Comments"
+    measured_by: [CC-012]
+    summary: >
+      Let the code say what it does. Comments explain why: a non-obvious
+      decision, a constraint, a trade-off. Redundant comments rot and lie.
+    apply:
+      - Replace a "what" comment with a well-named function or variable.
+      - Keep comments for intent, warnings, legal notes and public API
+        documentation.
+      - Delete commented-out code; version control remembers it.
+    check: Does any comment I wrote repeat what the code already says?
+    example:
+      avoid: "# check if the customer can have a discount\nif c.age > 65 and c.orders > 10:"
+      prefer: "if customer.is_eligible_for_discount():"
+
+  - id: DP-013
+    name: boy-scout-rule
+    category: readability
+    title: The Boy Scout rule
+    source: "Clean Code - Introduction (Robert C. Martin)"
+    summary: >
+      Always leave the code you touch a little cleaner than you found it.
+      Small, constant improvements prevent software from rotting.
+    apply:
+      - When you change a function, also fix a bad name, extract a
+        method or remove dead code next to it.
+      - Keep these improvements small and in a separate commit (DP-020).
+      - The certification level of a file you touched must not go down.
+    check: Is every file I touched at least as clean as before, ideally cleaner?
+
+  - id: DP-014
+    name: tell-dont-ask
+    category: readability
+    title: Tell, don't ask (Law of Demeter)
+    source: "Clean Code - The Law of Demeter; The Pragmatic Programmer - Decoupling"
+    summary: >
+      Ask an object to do the work instead of pulling its data out and
+      deciding for it. Talk to direct collaborators, not to their parts.
+    apply:
+      - Avoid chains such as order.customer.address.city.
+      - Move behaviour next to the data it uses.
+    check: Did I write chains of getters or decide things using another object's internal data?
+
+  - id: DP-015
+    name: explicit-errors
+    category: readability
+    title: Explicit error handling
+    source: "Clean Code - Error Handling; The Pragmatic Programmer - Dead Programs Tell No Lies"
+    measured_by: [CC-005]
+    summary: >
+      Failures are explicit: exceptions or result types with a clear
+      meaning. No error codes, no silent catches, no null returned to mean
+      "not found" or "failed". Crash early rather than continue in an
+      invalid state.
+    apply:
+      - Catch only exceptions you can handle; let the rest propagate.
+      - Return an optional or result type, or raise, instead of None for
+        failure.
+      - Error messages say what happened and what to do.
+    check: Can any failure in my code be silently ignored or confused with a valid result?
+
+  # ---------------------------------------------------------- architecture
+  - id: DP-016
+    name: single-responsibility
+    category: architecture
+    title: Single responsibility
+    source: "Clean Architecture - SRP; Clean Code - Classes"
+    measured_by: [CC-007, CC-008]
+    summary: >
+      A module or class has one reason to change: it serves one actor or
+      one concern.
+    apply:
+      - Separate business rules, persistence, presentation and integration
+        code.
+      - If describing a class needs "and", consider splitting it.
+    check: Is there more than one reason for the classes I changed to change?
+
+  - id: DP-017
+    name: dependencies-point-inward
+    category: architecture
+    title: Dependencies point inward
+    source: "Clean Architecture - The Dependency Rule; Dependency Inversion Principle"
+    summary: >
+      Domain code does not depend on frameworks, databases or user
+      interfaces. Outer layers depend on inner ones through interfaces the
+      inner layers own.
+    apply:
+      - The domain defines interfaces (ports) for what it needs; adapters
+        in outer layers implement them.
+      - No framework, ORM or HTTP types inside domain objects.
+    check: Does any domain module I touched import infrastructure or framework code?
+
+  - id: DP-018
+    name: explicit-dependencies
+    category: architecture
+    title: Explicit dependencies
+    source: "Code That Fits in Your Head; Clean Architecture"
+    summary: >
+      Everything a class needs is passed in (constructor injection), not
+      fetched from globals, singletons, service locators or environment
+      variables deep in the code. Injected dependencies are also the seams
+      that make code testable (DP-025).
+    apply:
+      - Read configuration and build the object graph in one place (the
+        composition root).
+      - No hidden calls to the clock or random generators in logic; inject
+        them.
+    check: Does my code reach for a global, a singleton or the environment instead of receiving it?
+
+  - id: DP-019
+    name: composition-over-inheritance
+    category: architecture
+    title: Composition over inheritance
+    source: "Design Patterns (Gamma et al.); The Pragmatic Programmer - Inheritance Tax"
+    summary: >
+      Extend behaviour by combining small objects behind interfaces, not
+      by deep inheritance trees. Inheritance only for a real "is-a" with a
+      shared invariant.
+    apply:
+      - Prefer injecting a strategy or decorator over subclassing.
+      - Keep inheritance at most one or two levels deep.
+    check: Did I add a subclass where passing a collaborator would do?
+
+  # ----------------------------------------------------------- improvement
+  - id: DP-020
+    name: two-hats
+    category: improvement
+    title: The two hats
+    source: "Refactoring - The Two Hats (Kent Beck, Martin Fowler)"
+    summary: >
+      Adding functionality and refactoring are separate activities. While
+      refactoring, do not change external behaviour; while adding a
+      feature, do not restructure. Switch hats explicitly.
+    apply:
+      - Refactor first to make the change easy, commit, then make the
+        easy change in another commit.
+      - A refactoring commit changes no test expectations.
+      - Say in each commit message which hat it was.
+    check: Does any of my commits both restructure code and change its behaviour?
+
+  - id: DP-021
+    name: small-verifiable-steps
+    category: improvement
+    title: Small, verifiable steps
+    source: "Refactoring - The Rhythm of Refactoring; Code That Fits in Your Head"
+    summary: >
+      Refactor through atomic micro-changes (rename a variable, extract a
+      method, move a function) and run the tests after each one, so that
+      any error shows up at once and is trivial to undo.
+    apply:
+      - One mechanical change at a time; tests green after each.
+      - Commit often; each commit builds, passes the tests and the
+        certification check.
+      - When a step breaks something, revert it instead of debugging a
+        large change.
+    check: Could each of my steps be reverted on its own with the build still green?
+
+  - id: DP-022
+    name: code-smells
+    category: improvement
+    title: Recognise code smells
+    source: "Refactoring - Bad Smells in Code"
+    measured_by: [CTF-003, CTF-006, CTF-008, CC-007, CC-011]
+    summary: >
+      Smells such as long methods, large classes, long parameter lists,
+      duplicated code, feature envy, data clumps, shotgun surgery and
+      primitive obsession are triggers for targeted cleanup with the
+      matching refactoring.
+    apply:
+      - Treat every certifier violation as a smell and fix it with the
+        matching refactoring (Extract Function, Introduce Parameter
+        Object, Extract Class, Replace Conditional with Polymorphism...).
+      - Look also for smells the certifier cannot measure, such as feature envy,
+        data clumps, shotgun surgery, primitive obsession, speculative
+        generality.
+    check: Which smells remain in the code I touched, and why did I leave them?
+
+  - id: DP-023
+    name: rule-of-three
+    category: improvement
+    title: Rule of three
+    source: "Refactoring - The Rule of Three; Code That Fits in Your Head"
+    summary: >
+      Premature abstraction is as harmful as duplication. Tolerate a
+      second similar piece of code; extract the abstraction at the third,
+      when the shared concept is clear. Do not merge code that only looks
+      alike but changes for different reasons.
+    apply:
+      - Duplicate business knowledge is removed at once (DP-001).
+      - Similar-looking code is unified at the third occurrence.
+    check: Did I copy something a third time, or merge code that changes for different reasons?
+
+  # ---------------------------------------------------------------- safety
+  - id: DP-024
+    name: tests-before-changes
+    category: safety
+    title: Tests before changes
+    source: "Working Effectively with Legacy Code - Changing Software"
+    summary: >
+      Never change existing code without a safety net of automated tests
+      that cover the behaviour you are touching. Code without tests is, by
+      definition, legacy code.
+    apply:
+      - Before changing a function, make sure tests cover it; if not,
+        write them first (DP-026).
+      - Run the tests before and after the change.
+    check: Was the code I changed covered by tests before I changed it?
+
+  - id: DP-025
+    name: seams
+    category: safety
+    title: Find and use seams
+    source: "Working Effectively with Legacy Code - The Seam Model"
+    summary: >
+      A seam is a place where you can change the behaviour of code
+      without editing it there: an interface, an injected dependency, an
+      overridable method, a configuration point. Seams let you isolate
+      external dependencies and write unit tests.
+    apply:
+      - To test code tied to a database, network or clock, introduce a
+        seam (extract an interface, inject the dependency) with the
+        smallest safe change.
+      - Prefer object seams (interfaces, injection) over link or
+        preprocessor seams.
+    check: Could I test the code I touched without its real external dependencies?
+
+  - id: DP-026
+    name: characterization-tests
+    category: safety
+    title: Characterization tests
+    source: "Working Effectively with Legacy Code - Characterization Tests"
+    summary: >
+      When you must change old, unclear code, first write tests that
+      record exactly what it does today, odd behaviour included, so that
+      any change in behaviour is detected. They describe the actual
+      behaviour, not the desired one.
+    apply:
+      - Call the code, assert whatever it returns now, and keep the test
+        even if the result looks wrong.
+      - Fix a suspicious behaviour only as a separate, deliberate change
+        with its own test (DP-020).
+    check: Before changing legacy code, did I pin its current behaviour with tests?
+
+  - id: DP-027
+    name: tests-first-outside-in
+    category: safety
+    title: Tests first, outside-in
+    source: "Code That Fits in Your Head - Outside-in TDD"
+    summary: >
+      Start from a test of the observable behaviour at the boundary, then
+      drive the inner design with smaller tests. Every behaviour change
+      comes with a test that failed before it.
+    apply:
+      - Write or update the test before the code; watch it fail.
+      - Test behaviour through public interfaces, not private details.
+    check: Is every behaviour I added or changed covered by a test that failed without my change?
